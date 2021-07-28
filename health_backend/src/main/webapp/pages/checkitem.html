@@ -331,7 +331,7 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    axios.get("/checkgroupcheckitem/count.do?id=" + id).then((resp) => {
+                    axios.get("/checkgroup/count.do?id=" + id).then((resp) => {
                         if (resp.data.flag) {
                             if (resp.data.data > 0) {
                                 this.$message({

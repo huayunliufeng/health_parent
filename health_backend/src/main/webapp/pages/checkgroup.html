@@ -73,7 +73,7 @@
                 <el-table-column prop="remark" label="说明" align="center"></el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
-                        <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
+                        <el-button type="primary" size="mini" @click="handleUpdate(scope.row.id)">编辑</el-button>
                         <el-button size="mini" type="danger" @click="handleDelete(scope.row.id)">删除</el-button>
                     </template>
                 </el-table-column>
@@ -163,6 +163,16 @@
                                     </table>
                                 </div>
                             </el-tab-pane>
+                            <div class="pagination-container">
+                                <el-pagination
+                                        class="paginationByCheckItem"
+                                        @current-change="handleCurrentChangeByCheckItem"
+                                        :current-page.sync="paginationByCheckItem.currentPage"
+                                        :page-size="paginationByCheckItem.pageSize"
+                                        layout="total, prev, pager, next, jumper"
+                                        :total="paginationByCheckItem.total">
+                                </el-pagination>
+                            </div>
                         </el-tabs>
                     </template>
                     <div slot="footer" class="dialog-footer">
@@ -247,6 +257,16 @@
                                     </table>
                                 </div>
                             </el-tab-pane>
+                            <div class="pagination-container">
+                                <el-pagination
+                                        class="paginationByCheckItem"
+                                        @current-change="handleCurrentChangeByCheckItem"
+                                        :current-page.sync="paginationByCheckItem.currentPage"
+                                        :page-size="paginationByCheckItem.pageSize"
+                                        layout="total, prev, pager, next, jumper"
+                                        :total="paginationByCheckItem.total">
+                                </el-pagination>
+                            </div>
                         </el-tabs>
                     </template>
                     <div slot="footer" class="dialog-footer">
@@ -271,6 +291,12 @@
                 total: 100,
                 queryString: null,
             },
+            paginationByCheckItem: {//分页相关属性
+                currentPage: 1,
+                pageSize: 10,
+                total: 100,
+                queryString: null,
+            },
             dataList: [],//列表数据
             formData: {},//表单数据
             tableData: [],//新增和编辑表单中对应的检查项列表数据
@@ -280,7 +306,6 @@
         },
         created() {
             //获取储存的当前分页
-            this.pagination.currentPage = this.getContextData("currentPage") || 1;
             this.findPage();
         },
         methods: {
@@ -302,30 +327,23 @@
                         return str;
                     }
                 }
-                return;
+
             },
             //编辑
             handleEdit() {
-                this.$refs['dataEditForm'].validate((valid) => {
-                    if(valid){
-                        var _this = this;
-                        axios.put("/checkitem/edit.do",this.formData).then((resp) => {
-                            if(resp.data.flag){ // 服务器端处理成功，resp.data就是返回的json对象
-                                _this.$message({//elementUI的提示框
-                                    message: resp.data.message,  //信息内容
-                                    type: 'success'              //框的种类
-                                });
-                                _this.dialogFormVisible4Edit = false;//隐藏录入表单
-                                _this.findPage();     //分页查询
-                            }else{ // 服务器端处理失败
-                                _this.$message.error(resp.data.message); //弹出错误 消息
-                            }
+                axios.put("/checkgroup/edit.do?checkitemIds="+this.checkitemIds, this.formData).then((resp) => {
+                    if (resp.data.flag) { // 服务器端处理成功，resp.data就是返回的json对象
+                        this.$message({//elementUI的提示框
+                            message: resp.data.message,  //信息内容
+                            type: 'success'              //框的种类
                         });
-                    }else{
-                        this.$message.error("校验失败,请重新填写");
-                        return false;
+                        this.dialogFormVisible4Edit = false;//隐藏录入表单
+                        this.handleCurrentChange(this.pagination.currentPage);     //分页查询
+                    } else { // 服务器端处理失败
+                        this.$message.error(resp.data.message); //弹出错误 消息
                     }
-                })
+                });
+
             },
             //添加
             handleAdd() {
@@ -350,22 +368,8 @@
             },
 
             //分页查询
-            findPage(page) {
-                if (page === 1) {
-                    this.pagination.currentPage = 1;
-                }
-                //封装分页参数
-                const param = {
-                    currentPage: this.pagination.currentPage,
-                    pageSize: this.pagination.pageSize,
-                    queryString: this.pagination.queryString
-                };
-                //发送ajax请求，提交分页相关参数
-                axios.post("/checkgroupcheckitem/findPage.do", param).then((res) => {
-                    //为VUE对象的模型数据赋值，基于双向数据绑定展示到页面
-                    this.dataList = res.data.rows;//当前页展示的数据集合
-                    this.pagination.total = res.data.total;//总数据量
-                });
+            findPage() {
+                this.handleCurrentChange(1)
             },
             // 重置表单
             resetForm() {
@@ -378,27 +382,44 @@
                 this.activeName = 'first';//默认选中first对应的tab
                 this.checkitemIds = []; //重置选中的检查项
                 //发送ajax请求，查询所有的检查项信息，转为json，赋值给tableData
-                axios.get("/checkitem/findAll.do").then((res) => {
-                    if (res.data.flag) {
-                        //查询检查项数据成功
-                        this.tableData = res.data.data;
-                    } else {
-                        //查询检查项数据失败
-                        this.$message.error(res.data.message);
-                    }
-                });
+                this.handleCurrentChangeByCheckItem(1);
             },
             // 弹出编辑窗口
-            handleUpdate(row) {
+            handleUpdate(id) {
+
+                this.handleCurrentChangeByCheckItem(1);
+                axios.get("/checkgroup/update.do?id="+id).then((resp)=>{
+                    if(resp.data.flag){
+                        this.formData = resp.data.data[0];
+                        this.checkitemIds = resp.data.data[1];
+                    }else{
+                        this.$message.error(resp.data.message); //弹出错误 消息
+                    }
+                });
+                this.dialogFormVisible4Edit = true;
             },
             //切换页码
             handleCurrentChange(currentPage) {
-                //设置最新的页码
                 this.pagination.currentPage = currentPage;
-                //储存当前页码
-                this.setContextData("currentPage", this.pagination.currentPage);
-                //重新调用findPage方法进行分页查询
-                this.findPage();
+
+                //发送ajax请求，提交分页相关参数
+                axios.post("/checkgroup/findPage.do", this.pagination).then((res) => {
+                    //为VUE对象的模型数据赋值，基于双向数据绑定展示到页面
+                    this.dataList = res.data.rows;//当前页展示的数据集合
+                    this.pagination.total = res.data.total;//总数据量
+                });
+            },
+
+            //切换页码
+            handleCurrentChangeByCheckItem(currentPage) {
+                this.paginationByCheckItem.currentPage = currentPage;
+
+                //发送ajax请求，提交分页相关参数
+                axios.post("/checkitem/page.do", this.paginationByCheckItem).then((res) => {
+                    //为VUE对象的模型数据赋值，基于双向数据绑定展示到页面
+                    this.tableData = res.data.rows;//当前页展示的数据集合
+                    this.paginationByCheckItem.total = res.data.total;//总数据量
+                });
             },
             // 删除
             handleDelete(id) {
@@ -408,14 +429,14 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    axios.delete("/checkgroupcheckitem/delete.do?id="+id).then((resp) => {
+                    axios.delete("/checkgroup/delete.do?id=" + id).then((resp) => {
                         if (resp.data.flag) { // 服务器端处理成功
                             this.$message({
                                 type: 'success',
                                 message: resp.data.message
                             });
                             this.handleCurrentChange(this.pagination.currentPage);
-                          } else { // 服务器端处理失败
+                        } else { // 服务器端处理失败
                             this.$message.error(resp.data.message);
                         }
                     });

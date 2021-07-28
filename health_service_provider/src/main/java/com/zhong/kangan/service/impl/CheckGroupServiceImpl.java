@@ -10,6 +10,7 @@ import com.zhong.kangan.common.result.PageResult;
 import com.zhong.kangan.mapper.CheckGroupMapper;
 import com.zhong.kangan.service.CheckGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author 24804
@@ -33,9 +34,41 @@ public class CheckGroupServiceImpl implements CheckGroupService {
         return new PageResult(allCheckGroupByPages.getTotal(),allCheckGroupByPages.getResult());
     }
 
-
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void delete(int id) {
             checkGroupMapper.delete(id);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void addCheckGroup(CheckGroup checkGroup, int[] checkitemIds) {
+        checkGroupMapper.addCheckGroup(checkGroup);
+        int id = checkGroup.getId();
+        addCheckGroupCheckItem(id,checkitemIds);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void addCheckGroupCheckItem(int id,int[] checkitemIds){
+        checkGroupMapper.addCheckGroupCheckItem(id, checkitemIds);
+    }
+
+    @Override
+    public CheckGroup findCheckGroupById(int id) {
+        return checkGroupMapper.findCheckGroupById(id);
+    }
+
+    @Override
+    public int[] findCheckGroupCheckItemById(int id) {
+        return checkGroupMapper.findCheckGroupCheckItemById(id);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void editCheckGroup(CheckGroup checkGroup, int[] checkitemIds) {
+        checkGroupMapper.editCheckGroup(checkGroup);
+        int id = checkGroup.getId();
+        checkGroupMapper.deleteCheckGroupCheckItem(id);
+        checkGroupMapper.addCheckGroupCheckItem(id,checkitemIds);
     }
 }
