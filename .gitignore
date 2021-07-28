@@ -8,9 +8,9 @@ health_backend/src/main/webapp/css
 health_backend/src/main/webapp/img
 health_backend/src/main/webapp/js
 health_backend/src/main/webapp/plugins
-health_backend/src/main/webapp/WEB-INF
 health*/pom.xml
 health_common
+health_backend/src/main/resources
 health_service_provider/src/main/resources/*.properties
 health_service_provider/src/main/resources/*.xml
 

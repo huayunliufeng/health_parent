@@ -1,12 +1,13 @@
+
 <!DOCTYPE html>
 <html>
 <head>
     <!-- 页面meta -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>康安体检</title>
-    <meta name="description" content="康安体检">
-    <meta name="keywords" content="康安体检">
+    <title>传智健康</title>
+    <meta name="description" content="传智健康">
+    <meta name="keywords" content="传智健康">
     <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
     <!-- 引入样式 -->
     <link rel="stylesheet" href="../plugins/elementui/index.css">
@@ -74,7 +75,7 @@
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
                         <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
-                        <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+                        <el-button size="mini" type="danger" @click="handleDelete(scope.row.id)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -306,6 +307,26 @@
             },
             //编辑
             handleEdit() {
+                this.$refs['dataEditForm'].validate((valid) => {
+                    if(valid){
+                        var _this = this;
+                        axios.put("/checkitem/edit.do",this.formData).then((resp) => {
+                            if(resp.data.flag){ // 服务器端处理成功，resp.data就是返回的json对象
+                                _this.$message({//elementUI的提示框
+                                    message: resp.data.message,  //信息内容
+                                    type: 'success'              //框的种类
+                                });
+                                _this.dialogFormVisible4Edit = false;//隐藏录入表单
+                                _this.findPage();     //分页查询
+                            }else{ // 服务器端处理失败
+                                _this.$message.error(resp.data.message); //弹出错误 消息
+                            }
+                        });
+                    }else{
+                        this.$message.error("校验失败,请重新填写");
+                        return false;
+                    }
+                })
             },
             //添加
             handleAdd() {
@@ -328,12 +349,12 @@
                     this.findPage();
                 });
             },
+
             //分页查询
             findPage(page) {
                 if (page === 1) {
                     this.pagination.currentPage = 1;
                 }
-
                 //封装分页参数
                 const param = {
                     currentPage: this.pagination.currentPage,
@@ -341,7 +362,7 @@
                     queryString: this.pagination.queryString
                 };
                 //发送ajax请求，提交分页相关参数
-                axios.post("/checkgroup/findPage.do", param).then((res) => {
+                axios.post("/checkgroupcheckitem/findPage.do", param).then((res) => {
                     //为VUE对象的模型数据赋值，基于双向数据绑定展示到页面
                     this.dataList = res.data.rows;//当前页展示的数据集合
                     this.pagination.total = res.data.total;//总数据量

@@ -1,13 +1,12 @@
 package com.zhong.kangan.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.zhong.kangan.common.constant.MessageConstant;
+import com.zhong.kangan.common.querybean.QueryPageBean;
+import com.zhong.kangan.common.result.PageResult;
 import com.zhong.kangan.common.result.Result;
 import com.zhong.kangan.service.CheckGroupCheckItemService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import com.zhong.kangan.service.CheckGroupService;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author 华韵流风
@@ -23,6 +22,9 @@ public class CheckGroupController {
     @Reference
     private CheckGroupCheckItemService cgciService;
 
+    @Reference
+    private CheckGroupService checkGroupService;
+
     @GetMapping("/count")
     public Result count(@RequestParam("id") int id){
         try {
@@ -34,6 +36,16 @@ public class CheckGroupController {
         return new Result(false, "");
     }
 
+    @PostMapping("/findPage")
+    public PageResult page(@RequestBody QueryPageBean pageBean){
 
+        try {
+            PageResult pageResult = checkGroupService.findAllCheckGroupByPages(pageBean);
+            return pageResult;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("分页查询失败！");
+        }
+    }
 
 }
