@@ -1,6 +1,7 @@
 package com.zhong.kangan.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.zhong.kangan.common.constant.MessageConstant;
 import com.zhong.kangan.common.querybean.QueryPageBean;
 import com.zhong.kangan.common.result.PageResult;
 import com.zhong.kangan.common.result.Result;
@@ -25,7 +26,7 @@ public class CheckGroupController {
     @Reference
     private CheckGroupService checkGroupService;
 
-    @GetMapping("/count")
+    @GetMapping(value = "/count")
     public Result count(@RequestParam("id") int id){
         try {
             int count = cgciService.findCountByCheckItemId(id);
@@ -36,7 +37,7 @@ public class CheckGroupController {
         return new Result(false, "");
     }
 
-    @PostMapping("/findPage")
+    @PostMapping(value = "/findPage")
     public PageResult page(@RequestBody QueryPageBean pageBean){
 
         try {
@@ -46,6 +47,19 @@ public class CheckGroupController {
             e.printStackTrace();
             throw new RuntimeException("分页查询失败！");
         }
+    }
+
+    @DeleteMapping(value = "/delete")
+    public Result delete(@RequestParam int id){
+
+        System.out.println(id);
+        try {
+            checkGroupService.delete(id);
+            return new Result(true, MessageConstant.DELETE_CHECKGROUP_SUCCESS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new Result(false, MessageConstant.DELETE_CHECKGROUP_FAIL);
     }
 
 }

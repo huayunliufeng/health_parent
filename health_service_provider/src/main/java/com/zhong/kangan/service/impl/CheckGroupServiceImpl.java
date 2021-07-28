@@ -26,15 +26,16 @@ public class CheckGroupServiceImpl implements CheckGroupService {
 
     @Override
     public PageResult findAllCheckGroupByPages(QueryPageBean queryPageBean) {
-        //从queryPageBean取出数据
-        Integer currentPage = queryPageBean.getCurrentPage();
-        Integer pageSize = queryPageBean.getPageSize();
-        String queryString = queryPageBean.getQueryString();
         //在执行查询之前，让分页插件进行工作
-        PageHelper.startPage(currentPage,pageSize);
+        PageHelper.startPage(queryPageBean.getCurrentPage(),queryPageBean.getPageSize());
         //返回的是List,可是Page继承了ArrayList，所以可以强转
-        Page<CheckGroup> allCheckGroupByPages = (Page<CheckGroup>) checkGroupMapper.findAllCheckGroupByPages(queryString);
-        PageResult pageResult = new PageResult(allCheckGroupByPages.getTotal(),allCheckGroupByPages.getResult());
-        return pageResult;
+        Page<CheckGroup> allCheckGroupByPages = (Page<CheckGroup>) checkGroupMapper.findAllCheckGroupByPages(queryPageBean.getQueryString());
+        return new PageResult(allCheckGroupByPages.getTotal(),allCheckGroupByPages.getResult());
+    }
+
+
+    @Override
+    public void delete(int id) {
+            checkGroupMapper.delete(id);
     }
 }

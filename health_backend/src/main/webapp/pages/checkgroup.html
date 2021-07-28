@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -402,7 +401,30 @@
                 this.findPage();
             },
             // 删除
-            handleDelete(row) {
+            handleDelete(id) {
+                //删除确认
+                this.$confirm('确认删除吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios.delete("/checkgroupcheckitem/delete.do?id="+id).then((resp) => {
+                        if (resp.data.flag) { // 服务器端处理成功
+                            this.$message({
+                                type: 'success',
+                                message: resp.data.message
+                            });
+                            this.handleCurrentChange(this.pagination.currentPage);
+                          } else { // 服务器端处理失败
+                            this.$message.error(resp.data.message);
+                        }
+                    });
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
             }
         }
     });

@@ -19,4 +19,12 @@ public interface CheckGroupService {
      * @return
      */
    PageResult findAllCheckGroupByPages(QueryPageBean queryPageBean);
+
+
+    /**
+     * 删除
+     *
+     * @param id id
+     */
+    void delete(int id);
 }

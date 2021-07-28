@@ -21,4 +21,12 @@ public interface CheckGroupMapper {
      * @return
      */
     List<CheckGroup> findAllCheckGroupByPages(String queryString);
+
+
+    /**
+     * 删除
+     *
+     * @param id id
+     */
+    void delete(int id);
 }
