@@ -8,8 +8,7 @@ health_backend/src/main/webapp/css
 health_backend/src/main/webapp/img
 health_backend/src/main/webapp/js
 health_backend/src/main/webapp/plugins
-health_backend/src/main/resources/springMVC.xml
-health_backend/src/main/resources/log4j.properties
+health_backend/src/main/resources
 health*/pom.xml
 health_common
 health_service_provider/src/main/resources/*.properties
