@@ -28,16 +28,16 @@ public class CheckGroupServiceImpl implements CheckGroupService {
     @Override
     public PageResult findAllCheckGroupByPages(QueryPageBean queryPageBean) {
         //在执行查询之前，让分页插件进行工作
-        PageHelper.startPage(queryPageBean.getCurrentPage(),queryPageBean.getPageSize());
+        PageHelper.startPage(queryPageBean.getCurrentPage(), queryPageBean.getPageSize());
         //返回的是List,可是Page继承了ArrayList，所以可以强转
         Page<CheckGroup> allCheckGroupByPages = (Page<CheckGroup>) checkGroupMapper.findAllCheckGroupByPages(queryPageBean.getQueryString());
-        return new PageResult(allCheckGroupByPages.getTotal(),allCheckGroupByPages.getResult());
+        return new PageResult(allCheckGroupByPages.getTotal(), allCheckGroupByPages.getResult());
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(int id) {
-            checkGroupMapper.delete(id);
+        checkGroupMapper.delete(id);
     }
 
     @Override
@@ -45,12 +45,14 @@ public class CheckGroupServiceImpl implements CheckGroupService {
     public void addCheckGroup(CheckGroup checkGroup, int[] checkitemIds) {
         checkGroupMapper.addCheckGroup(checkGroup);
         int id = checkGroup.getId();
-        addCheckGroupCheckItem(id,checkitemIds);
+        addCheckGroupCheckItem(id, checkitemIds);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void addCheckGroupCheckItem(int id,int[] checkitemIds){
-        checkGroupMapper.addCheckGroupCheckItem(id, checkitemIds);
+    public void addCheckGroupCheckItem(int id, int[] checkitemIds) {
+        if(checkitemIds.length!=0){
+            checkGroupMapper.addCheckGroupCheckItem(id, checkitemIds);
+        }
     }
 
     @Override
@@ -69,6 +71,6 @@ public class CheckGroupServiceImpl implements CheckGroupService {
         checkGroupMapper.editCheckGroup(checkGroup);
         int id = checkGroup.getId();
         checkGroupMapper.deleteCheckGroupCheckItem(id);
-        checkGroupMapper.addCheckGroupCheckItem(id,checkitemIds);
+        addCheckGroupCheckItem(id, checkitemIds);
     }
 }

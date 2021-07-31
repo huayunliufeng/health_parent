@@ -12,16 +12,16 @@
 
 
     <delete id="delete" parameterType="int">
-        delete from t_checkgroup_checkitem where checkgroup_id=#{id};
-        delete from t_checkgroup where id =#{id}
+        delete from t_checkgroup_checkitem where checkgroup_id = #{id};
+        delete from t_checkgroup where id = #{id}
     </delete>
 
     <insert id="addCheckGroup" parameterType="CheckGroup">
         insert into t_checkgroup(code, name, helpCode, sex, remark, attention)
-         values (#{code},#{name},#{helpCode},#{sex},#{remark},#{attention})
-         <selectKey resultType="int" keyColumn="id" keyProperty="id" order="AFTER">
-             select LAST_INSERT_ID()
-         </selectKey>
+        values (#{code},#{name},#{helpCode},#{sex},#{remark},#{attention})
+        <selectKey resultType="int" keyColumn="id" keyProperty="id" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
     </insert>
 
     <insert id="addCheckGroupCheckItem">
@@ -32,19 +32,32 @@
     </insert>
 
     <select id="findCheckGroupById" parameterType="int" resultType="CheckGroup">
-        select * from t_checkgroup where id=#{id}
+        select *
+        from t_checkgroup
+        where id = #{id}
     </select>
 
     <select id="findCheckGroupCheckItemById" parameterType="int" resultType="int">
-        select checkitem_id from t_checkgroup_checkitem where checkgroup_id=#{id}
+        select checkitem_id
+        from t_checkgroup_checkitem
+        where checkgroup_id = #{id}
     </select>
 
     <update id="editCheckGroup" parameterType="CheckGroup">
-        update t_checkgroup set code=#{code}, name=#{name}, helpCode=#{helpCode}, sex=#{sex}, remark=#{remark}, attention=#{attention} where id=#{id}
+        update t_checkgroup
+        set code=#{code},
+            name=#{name},
+            helpCode=#{helpCode},
+            sex=#{sex},
+            remark=#{remark},
+            attention=#{attention}
+        where id = #{id}
     </update>
 
     <delete id="deleteCheckGroupCheckItem" parameterType="int">
-        delete from t_checkgroup_checkitem where checkgroup_id=#{id}
+        delete
+        from t_checkgroup_checkitem
+        where checkgroup_id = #{id}
     </delete>
 
 </mapper>

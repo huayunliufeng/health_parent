@@ -1,7 +1,6 @@
 package com.zhong.kangan.mapper;
 
 
-
 import com.zhong.kangan.common.pojo.CheckGroup;
 
 import java.util.List;
@@ -16,7 +15,8 @@ import java.util.List;
 public interface CheckGroupMapper {
 
     /**
-     *查找数据
+     * 查找数据
+     *
      * @param queryString queryString
      * @return List<CheckGroup>
      */
@@ -40,10 +40,10 @@ public interface CheckGroupMapper {
     /**
      * 添加中间表数据
      *
-     * @param id id
+     * @param id           id
      * @param checkitemIds checkitemIds
      */
-    void addCheckGroupCheckItem(int id,int[] checkitemIds);
+    void addCheckGroupCheckItem(int id, int[] checkitemIds);
 
     /**
      * 查询检查组

@@ -38,7 +38,7 @@ public class CheckGroupController {
         return new Result(false, "");
     }
 
-    @PostMapping(value = "/findPage")
+    @PostMapping(value = "/page")
     public PageResult page(@RequestBody QueryPageBean pageBean) {
 
         try {
@@ -63,18 +63,18 @@ public class CheckGroupController {
     }
 
     @PostMapping(value = "/add")
-    public Result addCheckGroup(@RequestBody CheckGroup checkGroup,int[] checkitemIds){
+    public Result addCheckGroup(@RequestBody CheckGroup checkGroup, int[] checkitemIds) {
         try {
             checkGroupService.addCheckGroup(checkGroup, checkitemIds);
             return new Result(true, MessageConstant.ADD_CHECKGROUP_SUCCESS);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return new Result(false, MessageConstant.ADD_CHECKGROUP_FAIL);
     }
 
     @GetMapping(value = "/update")
-    public Result getInfo(@RequestParam("id") int id){
+    public Result getInfo(@RequestParam("id") int id) {
         Object[] objects = new Object[2];
         try {
             Object res1 = getCheckGroup(id);
@@ -82,26 +82,26 @@ public class CheckGroupController {
             objects[0] = res1;
             objects[1] = res2;
             return new Result(true, MessageConstant.QUERY_CHECKGROUP_SUCCESS, objects);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return new Result(false, MessageConstant.QUERY_CHECKGROUP_FAIL);
     }
 
-    private Object getCheckGroup(int id){
+    private Object getCheckGroup(int id) {
         return checkGroupService.findCheckGroupById(id);
     }
 
-    private Object getCheckGroupCheckItem(int id){
+    private Object getCheckGroupCheckItem(int id) {
         return checkGroupService.findCheckGroupCheckItemById(id);
     }
 
     @PutMapping(value = "/edit")
-    public Result editCheckGroup(@RequestBody CheckGroup checkGroup,int[] checkitemIds){
+    public Result editCheckGroup(@RequestBody CheckGroup checkGroup, int[] checkitemIds) {
         try {
             checkGroupService.editCheckGroup(checkGroup, checkitemIds);
             return new Result(true, MessageConstant.EDIT_CHECKGROUP_SUCCESS);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return new Result(false, MessageConstant.EDIT_CHECKGROUP_FAIL);

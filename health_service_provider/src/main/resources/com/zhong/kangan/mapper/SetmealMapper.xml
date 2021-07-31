@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhong.kangan.mapper.SetmealMapper">
+    <select id="findAllSetmealByPages" parameterType="String" resultType="Setmeal">
+        select * from t_setmeal
+        <if test="value!=null and value!=''">
+            where code like '%${value}%' or name like '%${value}%' or helpCode like '%${value}%'
+        </if>
+    </select>
+
+    <insert id="addSetmeal" parameterType="Setmeal">
+        insert into t_setmeal(name, code, helpCode, sex, age, price, remark, attention, img)
+        values(#{code},#{name},#{helpCode},#{sex},#{age},#{price},#{remark},#{attention},#{img})
+        <selectKey keyProperty="id" resultType="int" keyColumn="id" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <insert id="addSetmealCheckGroup">
+        insert into t_setmeal_checkgroup values
+        <foreach collection="param2" item="item" separator=",">
+            (#{param1},#{item})
+        </foreach>
+    </insert>
+
+    <select id="findSetmeal" parameterType="int" resultType="Setmeal">
+        select *
+        from t_setmeal
+        where id = #{id}
+    </select>
+
+    <select id="findSetmealCheckGroup" parameterType="int" resultType="int">
+        select checkgroup_id
+        from t_setmeal_checkgroup
+        where setmeal_id = #{id}
+    </select>
+
+    <update id="editSetmeal" parameterType="Setmeal">
+        update t_setmeal
+        set name=#{name},
+            code=#{code},
+            helpCode=#{helpCode},
+            sex=#{sex},
+            age=#{age},
+            price=#{price},
+            remark=#{remark},
+            attention=#{attention},
+            img=#{img}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSetmealCheckGroup" parameterType="int">
+        delete
+        from t_setmeal_checkgroup
+        where setmeal_id = #{id}
+    </delete>
+
+    <delete id="deleteSetmeal" parameterType="int">
+        delete
+        from t_setmeal
+        where id = #{id}
+    </delete>
+</mapper>

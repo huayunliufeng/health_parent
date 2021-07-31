@@ -16,10 +16,11 @@ public interface CheckGroupService {
 
     /**
      * 分页
+     *
      * @param queryPageBean queryPageBean
      * @return PageResult
      */
-   PageResult findAllCheckGroupByPages(QueryPageBean queryPageBean);
+    PageResult findAllCheckGroupByPages(QueryPageBean queryPageBean);
 
 
     /**
@@ -32,10 +33,10 @@ public interface CheckGroupService {
     /**
      * 添加检查组
      *
-     * @param checkGroup checkGroup
+     * @param checkGroup   checkGroup
      * @param checkitemIds checkitemIds
      */
-    void addCheckGroup(CheckGroup checkGroup,int[] checkitemIds);
+    void addCheckGroup(CheckGroup checkGroup, int[] checkitemIds);
 
     /**
      * 查询检查组
@@ -56,8 +57,8 @@ public interface CheckGroupService {
     /**
      * 修改检查组
      *
-     * @param checkGroup checkGroup
+     * @param checkGroup   checkGroup
      * @param checkitemIds checkitemIds
      */
-    void editCheckGroup(CheckGroup checkGroup,int[] checkitemIds);
+    void editCheckGroup(CheckGroup checkGroup, int[] checkitemIds);
 }
