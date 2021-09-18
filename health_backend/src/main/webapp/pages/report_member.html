@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>康安体检</title>
+    <meta name="description" content="康安体检">
+    <meta name="keywords" content="康安体检">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="hold-transition">
+<div id="app">
+    <div class="content-header">
+        <h1>统计分析<small>会员数量</small></h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>统计分析</el-breadcrumb-item>
+            <el-breadcrumb-item>会员数量</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+    <div style=" float: left;position: relative;left: 92%;top: 100px;z-index: 10">
+        <el-button type="primary" @click="lastYear()">上一年</el-button>
+        <br/><br/>
+        <el-tag>当前：{{year}}</el-tag>
+        <br/><br/>
+        <el-button type="success" @click="nextYear()" :disabled="dis">下一年</el-button>
+    </div>
+
+</div>
+<div class="app-container">
+
+    <div class="box">
+        <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+        <div id="chart1" style="height:600px;"></div>
+    </div>
+</div>
+
+</body>
+<!-- 引入组件库 -->
+<script src="../js/echarts.min.js"></script>
+<script src="../js/vue.js"></script>
+<script src="../plugins/elementui/index.js"></script>
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script src="../js/axios-0.18.0.js"></script>
+<!--页面初始化时会发出请求-->
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart1 = echarts.init(document.getElementById('chart1'));
+    /*使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);*/
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            dis: true,
+            year: new Date().getFullYear()
+        },
+        //钩子函数，VUE对象初始化完成后自动执行
+        created() {
+            this.getReport();
+        },
+        methods: {
+            getReport() {
+                axios.get("/report/getMemberReport.do?year=" + this.year).then((res) => {
+                    myChart1.setOption(
+                        {
+                            title: {
+                                text: '会员数量'
+                            },
+                            tooltip: {},
+                            legend: {
+                                data: ['会员数量']
+                            },
+                            xAxis: {
+                                name: '月份',
+                                data: res.data.data.months
+                                // data: ['2021-1', '2021-2', '2021-3', '2021-4']
+                            },
+                            yAxis: {
+                                type: 'value'
+                            },
+                            series: [{
+                                name: '会员数量',
+                                type: 'line',
+                                data: res.data.data.memberCount
+                                // data: [10, 20, 30, 40]
+                            }]
+                        });
+                }, (error) => {
+                    this.$message.error("请求失败！权限不足");
+                });
+            },
+
+            nextYear() {
+                this.year += 1;
+                if (this.year >= new Date().getFullYear()) {
+                    this.dis = true;
+                }
+                this.getReport();
+            },
+            lastYear() {
+                this.year -= 1;
+                if (this.year < new Date().getFullYear()) {
+                    this.dis = false;
+                }
+                this.getReport();
+            }
+        }
+
+    });
+
+</script>
+
+</html>

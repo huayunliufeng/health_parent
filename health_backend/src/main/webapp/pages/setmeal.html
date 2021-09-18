@@ -105,8 +105,10 @@
                         <el-button size="mini" type="danger" @click="handleDelete(scope.row.id,scope.row.img)">删除
                         </el-button>
                     </template>
+
                 </el-table-column>
             </el-table>
+
             <div class="pagination-container">
                 <el-pagination
                         class="pagiantion"
@@ -235,7 +237,7 @@
                         </el-tabs>
                     </template>
                     <div slot="footer" class="dialog-footer">
-                        <el-button @click="cancelAdd(formData.img)">取消</el-button>
+                        <el-button @click="this.dialogFormVisible = false">取消</el-button>
                         <el-button type="primary" @click="handleAdd()">确定</el-button>
                     </div>
                 </el-dialog>
@@ -243,7 +245,7 @@
 
             <!-- 编辑标签弹层 -->
             <div class="add-form">
-                <el-dialog title="新增套餐" :visible.sync="dialogFormVisible4Edit" :before-close="handleClose">
+                <el-dialog title="修改套餐" :visible.sync="dialogFormVisible4Edit" :before-close="handleClose">
                     <template>
                         <el-tabs v-model="activeName" type="card">
                             <el-tab-pane label="基本信息" name="first">
@@ -294,7 +296,6 @@
                                             <el-form-item label="上传图片">
                                                 <el-upload
                                                         class="avatar-uploader"
-                                                        ref="upload"
                                                         action="/setmeal/upload.do"
                                                         :auto-upload="autoUpload"
                                                         name="imgFile"
@@ -360,7 +361,7 @@
                         </el-tabs>
                     </template>
                     <div slot="footer" class="dialog-footer">
-                        <el-button @click="cancelEdit(formData.img)">取消</el-button>
+                        <el-button @click="this.dialogFormVisible4Edit = false">取消</el-button>
                         <el-button type="primary" @click="handleEdit(formData.img)">确定</el-button>
                     </div>
                 </el-dialog>
@@ -404,7 +405,6 @@
                         message: '请输入正确的格式,可保留两位小数'
                     }],
             },
-            oldImg: null
         },
         created() {
             this.handleCurrentChange(1);
@@ -444,14 +444,14 @@
 
             //关闭窗口
             handleClose(done) {
-                let fileName = this.formData.img;
+                /*let fileName = this.formData.img;
                 if (fileName != null && fileName !== '' && this.oldImg !== fileName) {
                     this.cancelAdd(fileName);
-                }
+                }*/
                 done();
             },
 
-            //取消添加
+           /* //取消添加
             cancelAdd(fileName) {
                 axios.get("/setmeal/cancel.do?fileName=" + fileName).then((res) => {
                     this.dialogFormVisible = false;
@@ -466,7 +466,7 @@
                         this.$message.error(res.data.message);
                     }
                 });
-            },
+            },*/
             //添加
             handleAdd() {
                 this.$refs['dataAddForm'].validate((valid) => {
@@ -486,6 +486,8 @@
                                 this.$message.error(res.data.message);
                             }
                             //不管操作成功与否都应该再次分页查询
+                        }, (error) => {
+                            this.$message.error("请求失败！权限不足");
                         }).finally(() => {
                             this.handleCurrentChange(1);
                         });
@@ -505,6 +507,8 @@
                     //为VUE对象的模型数据赋值，基于双向数据绑定展示到页面
                     this.dataList = res.data.rows;//当前页展示的数据集合
                     this.pagination.total = res.data.total;//总数据量
+                }, (error) => {
+                    this.$message.error("请求失败！权限不足");
                 });
             },
 
@@ -517,6 +521,8 @@
                     //为VUE对象的模型数据赋值，基于双向数据绑定展示到页面
                     this.tableData = res.data.rows;//当前页展示的数据集合
                     this.paginationByCheckGroup.total = res.data.total;//总数据量
+                }, (error) => {
+                    this.$message.error("请求失败！权限不足");
                 });
             },
 
@@ -529,10 +535,11 @@
                         this.formData = resp.data.data[0];
                         this.checkgroupIds = resp.data.data[1];
                         this.imageUrl = "http://qx01elw8l.hd-bkt.clouddn.com/" + resp.data.data[0].img;
-                        this.oldImg = resp.data.data[0].img;
                     } else {
                         this.$message.error(resp.data.message); //弹出错误 消息
                     }
+                }, (error) => {
+                    this.$message.error("请求失败！权限不足");
                 });
                 this.dialogFormVisible4Edit = true;
             },
@@ -541,13 +548,6 @@
             handleEdit(fileName) {
                 this.$refs['dataEditForm'].validate((valid) => {
                     if (valid) {
-                        console.log(fileName, this.oldImg);
-                        if (fileName !== this.oldImg) {
-                            this.$refs.upload.submit();
-                            axios.get("/setmeal/cancel.do?fileName=" + this.oldImg).then((res) => {
-                            });
-                        }
-
                         axios.put("/setmeal/edit.do?checkgroupIds=" + this.checkgroupIds, this.formData).then((resp) => {
                             if (resp.data.flag) { // 服务器端处理成功，resp.data就是返回的json对象
                                 this.$message({//elementUI的提示框
@@ -559,6 +559,8 @@
                             } else { // 服务器端处理失败
                                 this.$message.error(resp.data.message); //弹出错误 消息
                             }
+                        }, (error) => {
+                            this.$message.error("请求失败！权限不足");
                         });
                     } else {
                         this.$message.error("校验失败,请重新填写");
@@ -568,7 +570,7 @@
 
             },
             //取消编辑
-            cancelEdit(fileName) {
+            /*cancelEdit(fileName) {
                 if (fileName !== this.oldImg) {
                     axios.get("/setmeal/cancel.do?fileName=" + fileName).then((res) => {
                         if (res.data.flag) {
@@ -584,7 +586,7 @@
                     });
                 }
                 this.dialogFormVisible4Edit = false;
-            },
+            },*/
             // 删除
             handleDelete(id, img) {
                 //删除确认
@@ -593,7 +595,7 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    axios.delete("/setmeal/delete.do?id=" + id + "&img=" + this.img).then((resp) => {
+                    axios.delete("/setmeal/delete.do?id=" + id + "&img=" + img).then((resp) => {
                         if (resp.data.flag) { // 服务器端处理成功
                             this.$message({
                                 type: 'success',
@@ -603,6 +605,8 @@
                             this.$message.error(resp.data.message);
                         }
                         this.handleCurrentChange(this.pagination.currentPage);
+                    }, (error) => {
+                        this.$message.error("请求失败！权限不足");
                     });
                 }).catch(() => {
                     this.$message({
@@ -617,7 +621,6 @@
                 this.activeName = 'first';
                 this.formData = {};
                 this.imageUrl = null;
-                this.oldImg = null;
                 this.checkgroupIds = [];
             }
         }

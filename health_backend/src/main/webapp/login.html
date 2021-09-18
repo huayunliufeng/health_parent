@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>康安体检</title>
+    <meta name="description" content="康安体检">
+    <meta name="keywords" content="康安体检">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="plugins/elementui/index.css">
+    <link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="hold-transition skin-purple sidebar-mini">
+<div id="app">
+    <el-dialog title="登录" :visible.sync="dialogVisible" width="30%" :before-close="close">
+        <form action="/login.do" method="post">
+            <input type="text" name="username" placeholder="用户名" style="width: 100%;text-align: center;height: 22px"/><br/>
+            <input type="password" name="password" placeholder="密码" style="width: 100%;text-align: center;margin: 10px 0;height: 22px"/><br/>
+            <input type="submit" value="提交" style="width: 100%;text-align: center;height: 30px;background-color: #3a8ee6"/>
+        </form>
+    </el-dialog>
+
+
+</div>
+</body>
+<!-- 引入组件库 -->
+<script src="js/vue.js"></script>
+<script src="plugins/elementui/index.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script src="js/axios-0.18.0.js"></script>
+<script>
+    //获取指定的URL参数值 http://localhost/pages/setmeal_detail.html?id=3&name=jack
+    function getUrlParam(paraName) {
+        var url = document.location.toString();
+        //alert(url);
+        var arrObj = url.split("?");
+        if (arrObj.length > 1) {
+            var arrPara = arrObj[1].split("&");
+            var arr;
+            for (var i = 0; i < arrPara.length; i++) {
+                arr = arrPara[i].split("=");
+                if (arr != null && arr[0] === paraName) {
+                    return arr[1];
+                }
+            }
+            return "";
+        } else {
+            return "";
+        }
+    }
+
+    var error = getUrlParam("error");
+</script>
+<script>
+    let vue = new Vue({
+        el: '#app',
+        data: {
+            formData: {
+                username: null,
+                password: null,
+            },
+            rules: {
+                username: [{required: true, message: '请输入用户名', trigger: 'blur'}],
+                password: [{required: true, message: '请输入密码', trigger: 'blur'}]
+            },
+            dialogVisible: true,
+            loading: false
+        },
+        created() {
+            console.log(error)
+            if (error === '1') {
+                this.$message.error("登录失败，请检查账号和密码");
+            }
+        },
+        methods: {
+            close() {
+
+            }
+        }
+    });
+</script>
+
+</html>
+

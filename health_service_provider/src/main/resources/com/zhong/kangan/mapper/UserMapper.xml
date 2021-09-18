@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhong.kangan.mapper.UserMapper">
+    <select id="findUserByKey" parameterType="String" resultType="User">
+        select * from t_user
+        <if test="value!=null and value!=''">where username like '%${value}%' or telephone like '%${value}%'</if>
+    </select>
+
+    <select id="findUserById" parameterType="int" resultType="User">
+        select *
+        from t_user
+        where id = #{id}
+    </select>
+
+    <select id="findRoleIds" parameterType="int" resultType="int">
+        select role_id
+        from t_user_role
+        where user_id = #{id}
+    </select>
+
+    <select id="findUserByUserName" parameterType="String" resultType="User">
+        select * from t_user where username=#{username}
+    </select>
+
+    <insert id="addUser" parameterType="User">
+        insert into t_user(birthday, gender, username, password, remark, station, telephone)
+        values(#{birthday},#{gender},#{username},#{password},#{remark},#{station},#{telephone})
+        <selectKey resultType="int" keyColumn="id" keyProperty="id" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+    </insert>
+
+    <insert id="addUserRole">
+        insert into t_user_role values
+        <foreach collection="param2" item="item" separator=",">
+            (#{param1},#{item})
+        </foreach>
+    </insert>
+
+    <delete id="deleteUserRole" parameterType="int">
+        delete
+        from t_user_role
+        where user_id = #{id}
+    </delete>
+
+    <update id="editUser" parameterType="User">
+        update t_user
+        set birthday=#{birthday},
+            gender=#{gender},
+            username=#{username},
+            password=#{password},
+            remark=#{remark},
+            station=#{station},
+            telephone=#{telephone}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteUser" parameterType="int">
+        delete from t_user_role where user_id=#{id}
+    </delete>
+
+
+
+
+</mapper>

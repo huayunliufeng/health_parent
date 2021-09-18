@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhong.kangan.mapper.OrderSettingMapper">
+    <insert id="add" parameterType="OrderSetting">
+        insert into t_ordersetting(orderDate, number) values
+        <foreach collection="list" separator="," item="item">
+            (#{item.orderDate},#{item.number})
+        </foreach>
+    </insert>
+
+    <select id="findOrderSettingByMonth" resultType="OrderSetting">
+        select * from t_ordersetting where year(orderDate)=#{param1} and month(orderDate)=#{param2}
+    </select>
+
+    <select id="findOrderSettingByDate" parameterType="Date" resultType="int">
+        select count(*) from t_ordersetting where orderDate=#{value}
+    </select>
+
+    <update id="updateByOrderDate" parameterType="OrderSetting">
+        update t_ordersetting set number=#{number} where orderDate=#{orderDate}
+    </update>
+</mapper>

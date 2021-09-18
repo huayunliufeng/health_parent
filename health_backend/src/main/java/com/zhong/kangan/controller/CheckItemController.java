@@ -7,6 +7,7 @@ import com.zhong.kangan.common.querybean.QueryPageBean;
 import com.zhong.kangan.common.result.PageResult;
 import com.zhong.kangan.common.result.Result;
 import com.zhong.kangan.service.CheckItemService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -25,6 +26,7 @@ public class CheckItemController {
     @Reference
     private CheckItemService checkItemService;
 
+    @PreAuthorize("hasAnyAuthority('CHECKITEM_ADD')")
     @PostMapping(value = "/add")
     public Result addCheckItem(@RequestBody CheckItem checkItem) {
 
@@ -37,6 +39,7 @@ public class CheckItemController {
         return new Result(false, MessageConstant.ADD_CHECKITEM_FAIL);
     }
 
+    @PreAuthorize("hasAnyAuthority('CHECKITEM_QUERY')")
     @PostMapping(value = "/page")
     public PageResult page(@RequestBody QueryPageBean queryPageBean) {
 
@@ -49,6 +52,7 @@ public class CheckItemController {
 
     }
 
+    @PreAuthorize("hasAnyAuthority('CHECKITEM_EDIT','CHECKITEM_EDIT')")
     @GetMapping(value = "/update")
     public Result getById(@RequestParam("id") int id) {
 
@@ -61,6 +65,7 @@ public class CheckItemController {
         return new Result(false, MessageConstant.QUERY_CHECKITEM_FAIL);
     }
 
+    @PreAuthorize("hasAnyAuthority('CHECKITEM_EDIT')")
     @PutMapping(value = "/edit")
     public Result edit(@RequestBody CheckItem checkItem) {
 
@@ -73,6 +78,7 @@ public class CheckItemController {
         return new Result(false, MessageConstant.EDIT_CHECKITEM_FAIL);
     }
 
+    @PreAuthorize("hasAnyAuthority('CHECKITEM_DELETE')")
     @DeleteMapping(value = "/delete")
     public Result delete(@RequestParam int id) {
 
@@ -84,6 +90,8 @@ public class CheckItemController {
         }
         return new Result(false, MessageConstant.DELETE_CHECKITEM_FAIL);
     }
+
+
 
 
 

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhong.kangan.mapper.RoleMapper">
+
+    <select id="findRoleByKey" parameterType="String" resultType="Role">
+        select * from t_role
+        <if test="value!=null and value!=''">where name like '%${value}%' or keyword like '%${value}%'</if>
+    </select>
+
+    <select id="findRoleById" parameterType="int" resultType="Role">
+        select *
+        from t_role
+        where id = #{id}
+    </select>
+
+    <select id="findPermission" resultType="Permission">
+        select *
+        from t_permission
+    </select>
+
+    <select id="findPermissionIds" parameterType="int" resultType="int">
+        select permission_id
+        from t_role_permission
+        where role_id = #{id}
+    </select>
+
+    <select id="findPermissionById" parameterType="int" resultType="Permission">
+        select * from t_permission where id=#{id}
+    </select>
+
+    <insert id="addRole" parameterType="Role">
+        insert into t_role(name, keyword, description) values(#{name},#{keyword},#{description})
+        <selectKey resultType="int" keyColumn="id" keyProperty="id" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+    </insert>
+
+    <insert id="addRolePermission">
+        insert into t_role_permission values
+        <foreach collection="param2" item="item" separator=",">
+            (#{param1},#{item})
+        </foreach>
+    </insert>
+
+    <delete id="deleteRolePermission" parameterType="int">
+        delete
+        from t_role_permission
+        where role_id = #{id}
+    </delete>
+
+    <update id="editRole" parameterType="Role">
+        update t_role
+        set name=#{name},
+            keyword=#{keyword},
+            description=#{description}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteRole" parameterType="int">
+        delete from t_role where id=#{id}
+    </delete>
+
+    <delete id="deleteUserRole" parameterType="int">
+        delete from t_user_role where role_id=#{id}
+    </delete>
+
+</mapper>

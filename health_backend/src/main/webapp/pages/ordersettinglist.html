@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>康安体检</title>
+    <meta name="description" content="康安体检">
+    <meta name="keywords" content="康安体检">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../plugins/elementui/index.css">
+    <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="hold-transition">
+<div id="app">
+    <div class="content-header">
+        <h1>预约管理<small>预约列表</small></h1>
+        <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>预约管理</el-breadcrumb-item>
+            <el-breadcrumb-item>预约列表</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+    <div class="app-container">
+        <div class="box">
+            <div class="filter-container">
+                <el-input placeholder="档案号/姓名/手机号" v-model="pagination.queryString" style="width: 200px;"
+                          class="filter-item"></el-input>
+                <el-button @click="findPage()" class="dalfBut">查询</el-button>
+                <el-button type="primary" class="butT" @click="handleCreate()">新增</el-button>
+            </div>
+            <el-table size="small" ref="multipleTable" current-row-key="id" :data="dataList"
+                      @selection-change="handleSelectionChange" stripe highlight-current-row>
+                <el-table-column type="selection" width="55"></el-table-column>
+                <el-table-column prop="orderDate" label="预约日期" sortable align="center"></el-table-column>
+                <el-table-column prop="fileNumber" label="档案号" align="center"></el-table-column>
+                <el-table-column prop="name" label="姓名" align="center"></el-table-column>
+                <el-table-column prop="phoneNumber" label="手机号码" sortable align="center"></el-table-column>
+                <el-table-column prop="orderType" label="预约类型" sortable align="center"></el-table-column>
+                <el-table-column prop="orderStatus" label="预约状态" align="center"></el-table-column>
+                <el-table-column prop="setmeal_id" label="套餐ID" align="center"></el-table-column>
+                <el-table-column label="操作" align="center">
+                    <template slot-scope="scope">
+                        <el-button type="primary" size="mini" @click="handleUpdate([scope.row.id])">确认</el-button>
+                        <el-button size="mini" type="danger" @click="handleDelete([scope.row.id])">取消</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div style="margin-top: 20px">
+                <el-button type="primary" @click="handleUpdate(orderIds)">批量确认</el-button>
+                <el-button type="danger" @click="handleDelete(orderIds)">批量取消</el-button>
+                <el-button @click="toggleSelection()">取消选择</el-button>
+            </div>
+            <div class="pagination-container">
+                <el-pagination
+                        class="pagiantion"
+                        @current-change="handleCurrentChange"
+                        :current-page="pagination.currentPage"
+                        :page-size="pagination.pageSize"
+                        layout="total, prev, pager, next, jumper"
+                        :total="pagination.total">
+                </el-pagination>
+            </div>
+            <!-- 新增标签弹层 -->
+            <div class="add-form">
+                <el-dialog title="新增预约" :visible.sync="dialogFormVisible">
+                    <el-form ref="dataAddForm" :model="formData" :rules="rules" label-position="right"
+                             label-width="100px">
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="姓名" prop="name">
+                                    <el-input v-model="formData.name"/>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="性别" prop="sex">
+                                    <el-select v-model="formData.sex">
+                                        <el-option label="男" value="1"></el-option>
+                                        <el-option label="女" value="2"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="体检日期" prop="orderDate">
+<!--                                    <el-input v-model="formData.orderDate" type="date"></el-input>-->
+                                    <el-date-picker v-model="formData.orderDate" align="right" type="date" placeholder="选择日期" size="small"/>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="手机号" prop="phoneNumber">
+                                    <el-input v-model="formData.phoneNumber"/>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="24">
+                                <el-form-item label="身份证号" prop="idCard">
+                                    <el-input v-model="formData.idCard" type="text"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="24">
+                                <el-form-item label="套餐" prop="setmeal_id">
+                                    <el-select style="width: 100%" v-model="formData.setmeal_id" placeholder="请选择">
+                                        <el-option v-for="setmeal in setmeals" :key="setmeal.id" :label="setmeal.name"
+                                                   :value="setmeal.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogFormVisible = false">取消</el-button>
+                        <el-button type="primary" @click="handleAdd()">确定</el-button>
+                    </div>
+                </el-dialog>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+<!-- 引入组件库 -->
+<script src="../js/vue.js"></script>
+<script src="../plugins/elementui/index.js"></script>
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script src="../js/axios-0.18.0.js"></script>
+<script>
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            pagination: {//分页相关模型数据
+                currentPage: 1,//当前页码
+                pageSize: 10,//每页显示的记录数
+                total: 0,//总记录数
+                queryString: null//查询条件
+            },
+            dataList: [],//当前页要展示的分页列表数据
+            formData: {},//表单数据
+            setmeals: [],
+            orderIds: [],
+            dialogFormVisible: false,//增加表单是否可见
+            multipleSelection: [],
+            rules: {//校验规则
+                /*name: [{required: true, message: '姓名为必填项', trigger: 'blur'}],
+                sex: [{required: true, message: '性别为必填项', trigger: 'blur'}],
+                orderDate: [{required: true, message: '体检日期为必填项', trigger: 'blur'}],
+                phoneNumber: [{required: true, message: '手机号为必填项', trigger: 'blur'},{
+                    pattern: /^1(3[0-9]|4[01456879]|5[0-35-9]|6[2567]|7[0-8]|8[0-9]|9[0-35-9])\d{8}$/,
+                    message: '请输入正确的格式'
+                }],
+                idCard: [{required: true, message: '身份证号为必填项', trigger: 'blur'},{pattern:/^[1-9]\d{5}(18|19|20|(3\d))\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/,message: '请输入正确的格式'}],
+                setmeal_id: [{required: true, message: '套餐为必填项', trigger: 'blur'}]*/
+
+            }
+        },
+        //钩子函数，VUE对象初始化完成后自动执行
+        created() {
+            axios.get("/member/getAllSetmeal.do").then((resp) => {
+                if (resp.data.flag) {
+                    this.setmeals = resp.data.data;
+                }
+
+            }, (error) => {
+                this.$message.error("请求失败！权限不足");
+            });
+            this.findPage();
+        },
+        methods: {
+            handleSelectionChange(val) {
+                this.orderIds = [];
+                this.multipleSelection = val;
+                for (let i = 0; i < val.length; i++) {
+                    this.orderIds[i] = val[i].id;
+                }
+            },
+            toggleSelection(rows) {
+                if (rows) {
+                    rows.forEach(row => {
+                        this.$refs.multipleTable.toggleRowSelection(row);
+                    });
+                } else {
+                    this.$refs.multipleTable.clearSelection();
+                }
+            },
+            //添加
+            handleAdd() {
+                //校验
+                this.$refs['dataAddForm'].validate((valid) => {
+                    if (valid) {
+                        //发送ajax请求
+                        var _this = this;
+                        axios.post("/member/add.do?setmeal_id=" + this.formData.setmeal_id + "&orderDate=" + this.formData.orderDate, this.formData).then((resp) => {
+                            if (resp.data.flag) { // 服务器端处理成功
+                                _this.$message({
+                                    message: resp.data.message,
+                                    type: 'success'
+                                });
+
+                                _this.dialogFormVisible = false;
+                                _this.findPage();
+
+                            } else { // 服务器端处理失败
+                                _this.$message.error(resp.data.message);
+                            }
+                        }, (error) => {
+                            this.$message.error("请求失败！权限不足");
+                        });
+                    } else { // 失败
+                        this.$message.error("校验失败,请重新填写");
+                        return false;
+                    }
+                });
+
+            },
+            //分页查询
+            findPage() {
+                this.handleCurrentChange(1);
+            },
+            // 重置表单
+            resetForm() {
+
+            },
+            // 弹出添加窗口
+            handleCreate() {
+                this.formData = {};
+                this.dialogFormVisible = true;
+            },
+            //切换页码，发出请求指定页的数据
+            handleCurrentChange(currentPage) {
+                //把请求参数封装为一个对象
+                this.pagination.currentPage = currentPage;
+                //发出分页请求
+                axios.post("/member/page.do", this.pagination).then((resp) => {
+                    this.dataList = resp.data.rows;
+                    this.pagination.total = resp.data.total;
+
+                }, (error) => {
+                    this.$message.error("请求失败！权限不足");
+                });
+            },
+
+            //确认预约
+            handleUpdate(id) {
+                axios.put("/member/edit.do?id=" + id).then((resp) => {
+                    if (resp.data.flag) {
+                        this.$message.success(resp.data.message);
+                    } else {
+                        this.$message.error(resp.data.message);
+                    }
+                    this.handleCurrentChange(this.pagination.currentPage);
+                }, (error) => {
+                    this.$message.error("请求失败！权限不足");
+                });
+            },
+            // 取消预约
+            handleDelete(id) {
+                //删除确认
+                this.$confirm('确认取消吗？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios.delete("/member/delete.do?id=" + id).then((resp) => {
+                        if (resp.data.flag) {
+                            this.$message.success(resp.data.message);
+                        } else {
+                            this.$message.error(resp.data.message);
+                        }
+                        this.handleCurrentChange(this.pagination.currentPage);
+                    }, (error) => {
+                        this.$message.error("请求失败！权限不足");
+                    });
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            }
+        }
+    })
+</script>
+</html>

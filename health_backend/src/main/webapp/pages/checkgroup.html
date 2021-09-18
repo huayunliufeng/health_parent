@@ -4,9 +4,9 @@
     <!-- 页面meta -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>传智健康</title>
-    <meta name="description" content="传智健康">
-    <meta name="keywords" content="传智健康">
+    <title>康安体检</title>
+    <meta name="description" content="康安体检">
+    <meta name="keywords" content="康安体检">
     <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
     <!-- 引入样式 -->
     <link rel="stylesheet" href="../plugins/elementui/index.css">
@@ -94,7 +94,8 @@
                     <template>
                         <el-tabs v-model="activeName" type="card">
                             <el-tab-pane label="基本信息" name="first">
-                                <el-form label-position="right" label-width="100px" ref="dataAddForm" :rules="rules" :model="formData">
+                                <el-form label-position="right" label-width="100px" ref="dataAddForm" :rules="rules"
+                                         :model="formData">
                                     <el-row>
                                         <el-col :span="12">
                                             <el-form-item label="编码" prop="code">
@@ -189,7 +190,8 @@
                     <template>
                         <el-tabs v-model="activeName" type="card">
                             <el-tab-pane label="基本信息" name="first">
-                                <el-form label-position="right" label-width="100px" ref="dataEditForm" :rules="rules" :model="formData">
+                                <el-form label-position="right" label-width="100px" ref="dataEditForm" :rules="rules"
+                                         :model="formData">
                                     <el-row>
                                         <el-col :span="12">
                                             <el-form-item label="编码" prop="code">
@@ -350,6 +352,8 @@
                             } else { // 服务器端处理失败
                                 this.$message.error(resp.data.message); //弹出错误 消息
                             }
+                        }, (error) => {
+                            this.$message.error("请求失败！权限不足");
                         });
                     } else {
                         this.$message.error("校验失败,请重新填写");
@@ -377,6 +381,8 @@
                                 this.$message.error(res.data.message);
                             }
                             //不管操作成功与否都应该再次分页查询
+                        }, (error) => {
+                            this.$message.error("请求失败！权限不足");
                         }).finally(() => {
                             this.handleCurrentChange(1);
                         });
@@ -411,6 +417,8 @@
                     } else {
                         this.$message.error(resp.data.message); //弹出错误 消息
                     }
+                }, (error) => {
+                    this.$message.error("请求失败！权限不足");
                 });
                 this.dialogFormVisible4Edit = true;
             },
@@ -423,6 +431,8 @@
                     //为VUE对象的模型数据赋值，基于双向数据绑定展示到页面
                     this.dataList = res.data.rows;//当前页展示的数据集合
                     this.pagination.total = res.data.total;//总数据量
+                }, (error) => {
+                    this.$message.error("请求失败！权限不足");
                 });
             },
 
@@ -435,6 +445,8 @@
                     //为VUE对象的模型数据赋值，基于双向数据绑定展示到页面
                     this.tableData = res.data.rows;//当前页展示的数据集合
                     this.paginationByCheckItem.total = res.data.total;//总数据量
+                }, (error) => {
+                    this.$message.error("请求失败！权限不足");
                 });
             },
             // 删除
@@ -455,6 +467,8 @@
                         } else { // 服务器端处理失败
                             this.$message.error(resp.data.message);
                         }
+                    }, (error) => {
+                        this.$message.error("请求失败！权限不足");
                     });
                 }).catch(() => {
                     this.$message({

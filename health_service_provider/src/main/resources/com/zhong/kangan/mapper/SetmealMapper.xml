@@ -8,6 +8,10 @@
         </if>
     </select>
 
+    <select id="findAllSetmeal" resultType="Setmeal">
+        select * from t_setmeal
+    </select>
+
     <insert id="addSetmeal" parameterType="Setmeal">
         insert into t_setmeal(name, code, helpCode, sex, age, price, remark, attention, img)
         values(#{code},#{name},#{helpCode},#{sex},#{age},#{price},#{remark},#{attention},#{img})

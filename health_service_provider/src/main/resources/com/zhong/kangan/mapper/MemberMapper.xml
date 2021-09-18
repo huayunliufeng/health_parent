@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhong.kangan.mapper.MemberMapper">
+
+    <select id="findMemberByPhoneNumber" parameterType="String" resultType="Member">
+        select *
+        from t_member
+        where phoneNumber = #{phoneNumber}
+    </select>
+
+    <insert id="addMember" parameterType="Member">
+        insert into t_member(fileNumber, name, sex, idCard, phoneNumber, regTime, password, email, birthday, remark)
+        values (#{fileNumber}, #{name}, #{sex}, #{idCard}, #{phoneNumber}, #{regTime}, #{password}, #{email},
+        #{birthday}, #{remark})
+        <selectKey keyProperty="id" resultType="int" keyColumn="id" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <select id="findMemberById" parameterType="int" resultType="Member">
+        select *
+        from t_member
+        where id = #{id}
+    </select>
+
+    <select id="findMemberByKey" parameterType="String" resultType="Member">
+        select * from t_member
+        <if test="value!=null and value!=''">
+            where fileNumber=#{value} or name like '%${value}%' or phoneNumber like '%${value}%'
+        </if>
+    </select>
+
+    <update id="edit" parameterType="int">
+        update t_order
+        set orderStatus='已到诊'
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        delete
+        from t_order
+        where id = #{id}
+    </delete>
+
+    <select id="getAllSetmeal" resultType="Setmeal">
+        select *
+        from t_setmeal
+    </select>
+
+    <select id="findMemByIdAndKey" resultType="Member">
+        select * from t_member where id=#{param1}
+        <if test="param2!=null and param2!=''">
+            and fileNumber=#{param2} or name like '%${param2}%' or phoneNumber like '%${param2}%'
+        </if>
+    </select>
+</mapper>

@@ -13,7 +13,7 @@ health*/pom.xml
 health_common
 health_service_provider/src/main/resources/*.properties
 health_service_provider/src/main/resources/*.xml
-
+node_modules
 
 
 

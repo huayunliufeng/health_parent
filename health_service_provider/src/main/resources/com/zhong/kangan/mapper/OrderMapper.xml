@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhong.kangan.mapper.OrderMapper">
+
+    <select id="findAllSetmeal" resultType="Setmeal">
+        select *
+        from t_setmeal
+    </select>
+
+    <resultMap id="SetAndCCAndCI" type="Setmeal">
+        <id property="id" column="s_id"/>
+        <result property="name" column="s_name"/>
+        <result property="code" column="s_code"/>
+        <result property="helpCode" column="s_helpCode"/>
+        <result property="sex" column="s_sex"/>
+        <result property="age" column="s_age"/>
+        <result property="price" column="s_price"/>
+        <result property="remark" column="s_remark"/>
+        <result property="attention" column="s_attention"/>
+        <result property="img" column="s_img"/>
+        <collection property="checkGroups" ofType="CheckGroup">
+            <id property="id" column="cg_id"/>
+            <result property="code" column="cg_code"/>
+            <result property="name" column="cg_name"/>
+            <result property="helpCode" column="cg_helpCode"/>
+            <result property="sex" column="cg_sex"/>
+            <result property="remark" column="cg_remark"/>
+            <result property="attention" column="cg_attention"/>
+            <collection property="checkItems" ofType="CheckItem">
+                <id property="id" column="ci_id"/>
+                <result property="code" column="ci_code"/>
+                <result property="name" column="ci_name"/>
+                <result property="sex" column="ci_sex"/>
+                <result property="age" column="ci_age"/>
+                <result property="price" column="ci_price"/>
+                <result property="type" column="ci_type"/>
+                <result property="attention" column="ci_attention"/>
+                <result property="remark" column="ci_remark"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <!--<resultMap id="baseResultMap" type="Setmeal">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="helpCode" property="helpCode"/>
+        <result column="sex" property="sex"/>
+        <result column="age" property="age"/>
+        <result column="price" property="price"/>
+        <result column="remark" property="remark"/>
+        <result column="attention" property="attention"/>
+        <result column="img" property="img"/>
+    </resultMap>
+    <select id="findSetmealById" parameterType="int" resultMap="findByIdResultMapCheckGroup">
+        select *
+        from t_setmeal
+        where id = #{id}
+    </select>
+
+    <resultMap id="findByIdResultMapCheckGroup" type="Setmeal" extends="baseResultMap">
+        <collection property="checkGroups" ofType="CheckGroup" column="id" select="findCheckGroupInSetmealIdById"/>
+    </resultMap>
+    <select id="findCheckGroupInSetmealIdById" parameterType="int" resultMap="findByIdResultMapCheckGroup">
+        select *
+        from t_checkgroup
+        where id in (select checkgroup_id from t_setmeal_checkgroup where setmeal_id = #{id})
+    </select>
+
+    <resultMap id="baseResultMapCheckGroup" type="CheckGroup">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="helpCode" property="helpCode"/>
+        <result column="sex" property="sex"/>
+        <result column="remark" property="remark"/>
+        <result column="attention" property="attention"/>
+    </resultMap>
+    <resultMap id="findByIdResultMapCheckItem" type="CheckGroup" extends="baseResultMapCheckGroup">
+        <collection property="checkItems" ofType="CheckItem" column="id" select="findCheckItemInCheckGroupIdById"/>
+    </resultMap>
+
+    <select id="findCheckItemInCheckGroupIdById" parameterType="int" resultType="CheckItem">
+        select *
+        from t_checkitem
+        where id in
+              (select checkitem_id from t_checkgroup_checkitem where checkgroup_id = #{id})
+    </select>-->
+
+        <select id="findSetmealById" parameterType="int" resultMap="SetAndCCAndCI">
+            select s.id         s_id,
+                   s.name       s_name,
+                   s.remark     s_remark,
+                   s.sex        s_sex,
+                   s.age        s_age,
+                   s.img        s_img,
+                   s.code       s_code,
+                   s.helpCode   s_helpCode,
+                   s.price      s_price,
+                   s.attention  s_attention,
+                   cg.id        cg_id,
+                   cg.code      cg_code,
+                   cg.name      cg_name,
+                   cg.helpCode  cg_helpCode,
+                   cg.sex       cg_sex,
+                   cg.remark    cg_remark,
+                   cg.attention cg_attention,
+                   ci.id        ci_id,
+                   ci.code      ci_code,
+                   ci.name      ci_name,
+                   ci.sex       ci_sex,
+                   ci.age       ci_age,
+                   ci.price     ci_price,
+                   ci.type      ci_type,
+                   ci.attention ci_attention,
+                   ci.remark    ci_remark
+            from t_setmeal s
+                     left join t_setmeal_checkgroup sc on (s.id = sc.setmeal_id)
+                     left join t_checkgroup cg on (cg.id = sc.checkgroup_id)
+                     left join t_checkgroup_checkitem cc on (cc.checkgroup_id = cg.id)
+                     left join t_checkitem ci on (ci.id = cc.checkitem_id)
+            where sc.setmeal_id = #{id}
+        </select>
+
+    <insert id="addOrder" parameterType="Order">
+        insert into t_order(member_id, orderDate, orderType, orderStatus, setmeal_id)
+        values (#{memberId}, #{orderDate}, #{orderType}, #{orderStatus}, #{setmealId})
+        <selectKey keyProperty="id" resultType="Integer" keyColumn="id" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <update id="updateOrderSetting" parameterType="Date">
+        update t_ordersetting
+        set reservations=reservations + 1
+        where orderDate = #{orderDate}
+    </update>
+
+    <select id="getResNum" parameterType="Date" resultType="OrderSetting">
+        select *
+        from t_ordersetting
+        where orderDate = #{orderDate}
+    </select>
+
+    <select id="getOrderByMemId" parameterType="int" resultType="Order">
+        select o.id, o.member_id memberId, o.orderDate, o.orderType, o.orderStatus, o.setmeal_id setmealId
+        from t_order o
+        where member_id = #{memberId}
+    </select>
+
+    <select id="getOrderById" parameterType="int" resultType="Order">
+        select o.id, o.member_id memberId, o.orderDate, o.orderType, o.orderStatus, o.setmeal_id setmealId
+        from t_order o
+        where o.id = #{id}
+    </select>
+
+    <select id="findAllOrder" resultType="Order">
+        select * from t_order
+    </select>
+
+</mapper>

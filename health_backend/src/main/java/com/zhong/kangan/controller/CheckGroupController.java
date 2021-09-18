@@ -8,6 +8,7 @@ import com.zhong.kangan.common.result.PageResult;
 import com.zhong.kangan.common.result.Result;
 import com.zhong.kangan.service.CheckGroupCheckItemService;
 import com.zhong.kangan.service.CheckGroupService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -27,6 +28,7 @@ public class CheckGroupController {
     @Reference
     private CheckGroupService checkGroupService;
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/count")
     public Result count(@RequestParam("id") int id) {
         try {
@@ -38,6 +40,7 @@ public class CheckGroupController {
         return new Result(false, "");
     }
 
+    @PreAuthorize("hasAnyAuthority('CHECKGROUP_QUERY')")
     @PostMapping(value = "/page")
     public PageResult page(@RequestBody QueryPageBean pageBean) {
 
@@ -49,10 +52,9 @@ public class CheckGroupController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('CHECKGROUP_DELETE')")
     @DeleteMapping(value = "/delete")
     public Result delete(@RequestParam int id) {
-
-        System.out.println(id);
         try {
             checkGroupService.delete(id);
             return new Result(true, MessageConstant.DELETE_CHECKGROUP_SUCCESS);
@@ -62,6 +64,7 @@ public class CheckGroupController {
         return new Result(false, MessageConstant.DELETE_CHECKGROUP_FAIL);
     }
 
+    @PreAuthorize("hasAnyAuthority('CHECKGROUP_ADD')")
     @PostMapping(value = "/add")
     public Result addCheckGroup(@RequestBody CheckGroup checkGroup, int[] checkitemIds) {
         try {
@@ -73,6 +76,7 @@ public class CheckGroupController {
         return new Result(false, MessageConstant.ADD_CHECKGROUP_FAIL);
     }
 
+    @PreAuthorize("hasAnyAuthority('CHECKGROUP_EDIT','CHECKGROUP_QUERY')")
     @GetMapping(value = "/update")
     public Result getInfo(@RequestParam("id") int id) {
         Object[] objects = new Object[2];
@@ -96,6 +100,7 @@ public class CheckGroupController {
         return checkGroupService.findCheckGroupCheckItemById(id);
     }
 
+    @PreAuthorize("hasAnyAuthority('CHECKGROUP_EDIT')")
     @PutMapping(value = "/edit")
     public Result editCheckGroup(@RequestBody CheckGroup checkGroup, int[] checkitemIds) {
         try {

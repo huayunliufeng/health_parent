@@ -4,6 +4,8 @@ import com.zhong.kangan.common.pojo.Setmeal;
 import com.zhong.kangan.common.querybean.QueryPageBean;
 import com.zhong.kangan.common.result.PageResult;
 
+import java.util.List;
+
 /**
  * @author 华韵流风
  * @ClassName SetmealService
@@ -21,6 +23,7 @@ public interface SetmealService {
      * @return PageResult
      */
     PageResult findAllSetmealByPages(QueryPageBean queryPageBean);
+
 
     /**
      * 新增套餐

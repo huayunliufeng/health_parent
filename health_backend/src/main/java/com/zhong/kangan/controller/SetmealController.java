@@ -2,14 +2,19 @@ package com.zhong.kangan.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.zhong.kangan.common.constant.MessageConstant;
+import com.zhong.kangan.common.constant.RedisConstant;
 import com.zhong.kangan.common.pojo.Setmeal;
 import com.zhong.kangan.common.querybean.QueryPageBean;
 import com.zhong.kangan.common.result.PageResult;
 import com.zhong.kangan.common.result.Result;
+import com.zhong.kangan.common.utils.FileUploadUtil;
 import com.zhong.kangan.service.SetmealService;
-import com.zhong.kangan.utils.FileUploadUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -27,13 +32,17 @@ public class SetmealController {
 
     @Reference
     private SetmealService setmealService;
+    @Autowired
+    private JedisPool jedisPool;
 
+    @PreAuthorize("hasAnyAuthority('SETMEAL_ADD')")
     @PostMapping(value = "/upload")
     public Result upload(@RequestParam("imgFile") MultipartFile imgFile) {
         String fileName = imgFile.getOriginalFilename();
         int lastIndex = fileName.lastIndexOf(".");
         String suffix = fileName.substring(lastIndex);
         String uploadFileName = UUID.randomUUID().toString().replaceAll("-", "").trim() + suffix;
+
         byte[] uploadBytes;
         try {
             uploadBytes = imgFile.getBytes();
@@ -44,12 +53,17 @@ public class SetmealController {
 
         boolean result = FileUploadUtil.uploadFile(uploadBytes, uploadFileName);
         if (result) {
-            //把云端文件名
+            //所有上传的文件添加到all集合
+            Jedis jedis = jedisPool.getResource();
+            jedis.sadd(RedisConstant.SETMEALPICALL,uploadFileName);
+            //归还连接
+            jedis.close();
             return new Result(true, MessageConstant.PIC_UPLOAD_SUCCESS, uploadFileName);
         }
         return new Result(false, MessageConstant.PIC_UPLOAD_FAIL);
     }
 
+    @PreAuthorize("hasAnyAuthority('SETMEAL_QUERY')")
     @PostMapping(value = "/page")
     public PageResult page(@RequestBody QueryPageBean pageBean) {
 
@@ -61,10 +75,15 @@ public class SetmealController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('SETMEAL_ADD')")
     @PostMapping(value = "/add")
     public Result addCheckGroup(@RequestBody Setmeal setmeal, int[] checkgroupIds) {
         try {
             setmealService.addSetmeal(setmeal, checkgroupIds);
+
+            /*Jedis jedis = jedisPool.getResource();
+            jedis.sadd(RedisConstant.SETMEALPICVALID, setmeal.getImg());
+            jedis.close();*/
             return new Result(true, MessageConstant.ADD_SETMEAL_SUCCESS);
         } catch (Exception e) {
             e.printStackTrace();
@@ -72,7 +91,7 @@ public class SetmealController {
         return new Result(false, MessageConstant.ADD_SETMEAL_FAIL);
     }
 
-    @GetMapping(value = "/cancel")
+    /*@GetMapping(value = "/cancel")
     public Result cancelUpload(String fileName) {
         if (deleteFile(fileName)) {
             return new Result(true, "取消成功！");
@@ -80,8 +99,9 @@ public class SetmealController {
             return new Result(false, "文件不存在！");
         }
 
-    }
+    }*/
 
+    @PreAuthorize("hasAnyAuthority('SETMEAL_EDIT','SETMEAL_QUERY')")
     @GetMapping(value = "/update")
     public Result getInfo(@RequestParam("id") int id) {
         Object[] objects = new Object[2];
@@ -105,10 +125,14 @@ public class SetmealController {
         return setmealService.findSetmealCheckGroup(id);
     }
 
+    @PreAuthorize("hasAnyAuthority('SETMEAL_EDIT')")
     @PutMapping(value = "/edit")
     public Result editCheckGroup(@RequestBody Setmeal setmeal, int[] checkgroupIds) {
         try {
             setmealService.editSetmeal(setmeal, checkgroupIds);
+            /*Jedis jedis = jedisPool.getResource();
+            jedis.sadd(RedisConstant.SETMEALPICVALID, setmeal.getImg());
+            jedis.close();*/
             return new Result(true, "修改套餐数据成功");
         } catch (Exception e) {
             e.printStackTrace();
@@ -116,13 +140,15 @@ public class SetmealController {
         return new Result(false, "修改套餐数据失败");
     }
 
+    @PreAuthorize("hasAnyAuthority('SETMEAL_DELETE')")
     @DeleteMapping(value = "/delete")
     public Result delete(@RequestParam int id, String img) {
-
-        System.out.println(id);
         try {
             setmealService.deleteSetmeal(id);
-            return new Result(deleteFile(img), "删除套餐成功");
+            /*Jedis jedis = jedisPool.getResource();
+            jedis.srem(RedisConstant.SETMEALPICVALID, img);
+            jedis.close();*/
+            return new Result(true, "删除套餐成功");
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -249,6 +249,8 @@
                                 this.$message.error(resp.data.message);
                             }
 
+                        }, (error) => {
+                            this.$message.error("请求失败！权限不足");
                         });
                     } else {
                         this.$message.error("校验失败,请重新填写");
@@ -277,6 +279,8 @@
                             } else { // 服务器端处理失败
                                 _this.$message.error(resp.data.message);
                             }
+                        }, (error) => {
+                            this.$message.error("请求失败！权限不足");
                         });
                     } else { // 失败
                         this.$message.error("校验失败,请重新填写");
@@ -307,6 +311,8 @@
                         this.$message.error(resp.data.message);
                     }
 
+                }, (error) => {
+                    this.$message.error("请求失败！权限不足");
                 });
 
                 this.dialogFormVisible4Edit = true;
@@ -321,6 +327,8 @@
                     this.dataList = resp.data.rows;
                     this.pagination.total = resp.data.total;
 
+                }, (error) => {
+                    this.$message.error("请求失败！权限不足");
                 });
             },
             // 删除
@@ -350,6 +358,8 @@
                                         this.$message.error(resp.data.message);
                                     }
 
+                                }, (error) => {
+                                    this.$message.error("请求失败！权限不足");
                                 });
                             }
 
@@ -357,6 +367,8 @@
                             this.$message.error("查询失败！");
                         }
 
+                    }, (error) => {
+                        this.$message.error("请求失败！权限不足");
                     });
                 }).catch(() => {
                     this.$message({

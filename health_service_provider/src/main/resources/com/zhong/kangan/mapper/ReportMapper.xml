@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhong.kangan.mapper.ReportMapper">
+    <select id="findMemberCountByYearAndMonth" resultType="int">
+        select count(*) from t_member where year(regTime)=#{param1} and month(regTime)=#{param2}
+    </select>
+
+    <select id="findOrderCountBySetId" parameterType="int" resultType="int">
+        select count(*) from t_order where setmeal_id=#{id}
+    </select>
+
+    <select id="getTodayNewMember" resultType="int">
+        select count(*) from t_member where to_days(regTime)=to_days(now())
+    </select>
+
+    <select id="getTotalMember" resultType="int">
+        select count(*) from t_member
+    </select>
+
+    <select id="getThisWeekNewMember" resultType="int">
+        select count(*) from t_member where yearweek(regTime)=yearweek(now())
+    </select>
+
+    <select id="getThisMonthNewMember" resultType="int">
+        select count(*) from t_member where year(regTime)=year(now()) and month(regTime)=month(now())
+    </select>
+
+    <select id="getTodayOrderNumber" resultType="int">
+        select count(*) from t_order where to_days(orderDate)=to_days(now())
+    </select>
+
+    <select id="getTodayVisitsNumber" resultType="int">
+        select reservations from t_ordersetting where to_days(orderDate)=to_days(now())
+    </select>
+
+    <select id="getThisWeekOrderNumber" resultType="int">
+        select count(*) from t_order where yearweek(orderDate)=yearweek(now())
+    </select>
+    
+    <select id="getThisWeekVisitsNumber" resultType="int">
+        select sum(reservations) from t_ordersetting where yearweek(orderDate)=yearweek(now())
+    </select>
+
+    <select id="getThisMonthOrderNumber" resultType="int">
+        select count(*) from t_order where year(orderDate)=year(now()) and month(orderDate)=month(now())
+    </select>
+
+    <select id="getThisMonthVisitsNumber" resultType="int">
+        select sum(reservations) from t_ordersetting where year(orderDate)=year(now()) and month(orderDate)=month(now())
+    </select>
+
+    <select id="getHotSetmealIds" resultType="int">
+        select setmeal_id from t_order group by setmeal_id order by count(setmeal_id) desc limit 3
+    </select>
+
+    <select id="findAllCountOrder" resultType="int">
+        select count(*) from t_order
+    </select>
+
+
+
+</mapper>
